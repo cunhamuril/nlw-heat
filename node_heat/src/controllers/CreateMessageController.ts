@@ -1,4 +1,4 @@
-import { Request, response, Response } from "express";
+import { Request, Response } from "express";
 
 import { CreateMessageService } from "../services/CreateMessageService";
 
@@ -15,8 +15,8 @@ class CreateMessageController {
       return res.json(result);
     } catch (error) {
       return res
-        .status(error.response.status ?? 500)
-        .json({ error: error.message });
+        .status(error?.response?.status ?? 500)
+        .json({ error: error?.message ?? "Deu ruim" });
     }
   }
 }
