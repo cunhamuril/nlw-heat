@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import io, { Socket } from "socket.io-client";
 
 import { api } from "../../services/api";
 import logoImg from "../../assets/logo.svg";
@@ -14,8 +15,45 @@ type Message = {
   };
 };
 
+// const messagesQueue: Message[] = [];
+
+// const socket = io("http://localhost:4000");
+
+// socket.on("new_message", (newMessage: Message) => {
+//   messagesQueue.push(newMessage);
+// });
+
 export function MessageList() {
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+
+  // useEffect(() => {
+  //   setInterval(() => {
+  //     if (messagesQueue.length > 0) {
+  //       setMessages((prevState) =>
+  //         [messagesQueue[0], prevState[0], prevState[1]].filter(Boolean)
+  //       );
+
+  //       messagesQueue.shift();
+  //     }
+  //   }, 1000);
+  // }, []);
+
+  useEffect(() => {
+    const newSocket = io(`http://localhost:4000`);
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    socket?.on("new_message", (newMessage: Message) => {
+      setMessages((prevState) => [newMessage, prevState[0], prevState[1]]);
+    });
+  }, [socket]);
 
   useEffect(() => {
     api.get("messages/last3").then((response) => {
